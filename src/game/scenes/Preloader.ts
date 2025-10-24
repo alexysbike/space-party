@@ -34,6 +34,12 @@ export class Preloader extends Scene
 
         this.load.image('logo', 'logo.png');
         this.load.image('star', 'star.png');
+        this.load.image('arrow', 'arrow.png');
+        this.load.image('arrowEmpty', 'arrowEmpty.png');
+        this.load.image('spaceship1', 'spaceship1.png');
+        this.load.image('spaceship2', 'spaceship2.png');
+        this.load.image('missile', 'missile.png');
+        this.load.audio('song1', 'song1.mp3');
     }
 
     create ()
