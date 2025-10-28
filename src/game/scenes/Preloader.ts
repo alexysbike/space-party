@@ -40,6 +40,7 @@ export class Preloader extends Scene
         this.load.image('spaceship2', 'spaceship2.png');
         this.load.image('missile', 'missile.png');
         this.load.audio('song1', 'song1.mp3');
+        this.load.audio('song2', 'song2.mp3');
     }
 
     create ()
@@ -48,6 +49,6 @@ export class Preloader extends Scene
         //  For example, you can define global animations here, so we can use them in other scenes.
 
         //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
-        this.scene.start('Game');
+        this.scene.start('MainMenu');
     }
 }

@@ -1,6 +1,6 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
-import songData from '../songs/song1/data.json';
+import songData from '../songs/song2/data.json';
 import {Spaceship} from "../assets/Spaceship.ts";
 import {PlayerSpaceship} from "../assets/PlayerSpaceship.ts";
 import {EnemySpaceship} from "../assets/EnemySpaceship.ts";
@@ -101,7 +101,7 @@ export class Game extends Scene
         this.songPlaying = true;
         this.songDuration = 0;
         this.songData = songData;
-        this.music = this.sound.add('song1');
+        this.music = this.sound.add('song2');
         this.music.play();
     }
     
@@ -114,7 +114,7 @@ export class Game extends Scene
         // movimiento de las flechas
         for (let i = 0; i < this.arrows.length; i++) {
             const arrow = this.arrows[i];
-            arrow.y += 10;
+            arrow.y += 5;
         }
         
         // eliminación de las flechas que se salen de la pantalla
@@ -227,11 +227,11 @@ export class Game extends Scene
         }
         
         // end game
-        if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
-            this.changeScene();
-            this.music.stop();
-            this.songPlaying = false;
-        }
+        // if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
+        //     this.changeScene();
+        //     this.music.stop();
+        //     this.songPlaying = false;
+        // }
     }
     
     setInputs() {
