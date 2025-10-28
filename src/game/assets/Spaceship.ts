@@ -10,7 +10,9 @@ export class Spaceship {
     maxEnergy: number = 100;
     life: number = 100;
     maxLife: number = 100;
+    energyBarWhite: Phaser.GameObjects.Rectangle;
     energyBar: Phaser.GameObjects.Rectangle;
+    lifeBarWhite: Phaser.GameObjects.Rectangle;
     lifeBar: Phaser.GameObjects.Rectangle;
     shield: Phaser.GameObjects.Rectangle;
     shieldActivated = false;
@@ -58,12 +60,12 @@ export class Spaceship {
         this.spaceship = this.scene.add.image(this.x, this.y, this.texture).setScale(this.scale).setAngle(this.angle);
 
         // add energy sprite
-        this.scene.add.rectangle(this.x - 150, this.y + 100, 300, 30, 0xffffff).setOrigin(0,0);
-        this.energyBar = this.scene.add.rectangle(this.x - 150, this.y + 100, 0, 30, 0x0000ff).setOrigin(0,0);
+        this.energyBarWhite = this.scene.add.rectangle(this.x - 150, this.y + 50, 300, 30, 0xffffff).setOrigin(0,0);
+        this.energyBar = this.scene.add.rectangle(this.x - 150, this.y + 50, 0, 30, 0x0000ff).setOrigin(0,0);
 
         // add life sprite
-        this.scene.add.rectangle(this.x - 150, this.y +  150, 300, 30, 0xffffff).setOrigin(0,0);
-        this.lifeBar = this.scene.add.rectangle(this.x - 150, this.y +  150, 0, 30, 0xff0000).setOrigin(0,0);
+        this.lifeBarWhite = this.scene.add.rectangle(this.x - 150, this.y +  100, 300, 30, 0xffffff).setOrigin(0,0);
+        this.lifeBar = this.scene.add.rectangle(this.x - 150, this.y +  100, 0, 30, 0xff0000).setOrigin(0,0);
 
         // add shields sprite
         this.shield = this.scene.add.rectangle(this.x, this.y - 100, 200, 30, 0x0000ff).setAlpha(0);
@@ -75,7 +77,7 @@ export class Spaceship {
         this.energyBar.width = this.energy / this.maxEnergy * 300;
 
         //updating life bar
-        this.lifeBar.width = this.life / this.maxLife * 300;
+        this.lifeBar.width = (this.life / this.maxLife) * 300;
 
         // shield
         if (this.shieldActivated) {
@@ -152,6 +154,10 @@ export class Spaceship {
         this.missileSpeed *= -1;
         this.plasmaSpeed *= -1;
         this.missileAngle = this.missileAngle === 270 ? 90 : 270;
+        this.lifeBarWhite.y = this.y - 100
+        this.lifeBar.y = this.y - 100
+        this.energyBarWhite.y = this.y - 150
+        this.energyBar.y = this.y - 150
     }
 
     spawnShield() {

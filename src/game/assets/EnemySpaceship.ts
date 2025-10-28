@@ -2,11 +2,13 @@ import {Spaceship} from "./Spaceship.ts";
 
 export class EnemySpaceship extends Spaceship {
     constructor(scene: Phaser.Scene) {
-        super(scene, 200, 100, 'spaceship2', 0.1, 0);
+        super(scene, 200, 170, 'spaceship2', 0.08, 0);
         this.energy = 100;
-        this.life = 100;
+        this.life = 200;
         this.maxEnergy = 100;
-        this.maxLife = 100;
+        this.maxLife = 200;
+        this.missileSpeed = 5;
+        this.plasmaSpeed = 2;
         this.shieldLooseFunction = (_time: number, delta: number) => {
             return 2 * delta / 1000;
         }
@@ -21,6 +23,7 @@ export class EnemySpaceship extends Spaceship {
         super.update(time, delta);
 
         // enemy ia
+        this.energy += delta / 1000;
         // random number to a hit increase
         if (Math.random() < 0.007) {
             this.energy += 10
