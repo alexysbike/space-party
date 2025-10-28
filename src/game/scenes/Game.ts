@@ -227,11 +227,11 @@ export class Game extends Scene
         }
         
         // end game
-        // if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
-        //     this.changeScene();
-        //     this.music.stop();
-        //     this.songPlaying = false;
-        // }
+        if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
+            this.changeScene();
+            this.music.stop();
+            this.songPlaying = false;
+        }
     }
     
     setInputs() {
