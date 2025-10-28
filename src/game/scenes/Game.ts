@@ -49,10 +49,10 @@ export class Game extends Scene
         this.background.setAlpha(0.5);
 
         // add arrows sprites
-        this.arrowLeft = this.add.image(500, 700, 'arrowEmpty').setScale(0.3).setAngle(180);
-        this.arrowUp = this.add.image(650, 700, 'arrowEmpty').setScale(0.3).setAngle(270);
-        this.arrowDown = this.add.image(800, 700, 'arrowEmpty').setScale(0.3).setAngle(90);
-        this.arrowRight = this.add.image(950, 700, 'arrowEmpty').setScale(0.3);
+        this.arrowLeft = this.add.image(270, 700, 'arrowEmpty').setScale(0.3).setAngle(180);
+        // this.arrowUp = this.add.image(650, 700, 'arrowEmpty').setScale(0.3).setAngle(270);
+        // this.arrowDown = this.add.image(800, 700, 'arrowEmpty').setScale(0.3).setAngle(90);
+        this.arrowRight = this.add.image(750, 700, 'arrowEmpty').setScale(0.3);
         
         // add spaceship
         this.spaceship = new PlayerSpaceship(this); 
@@ -75,10 +75,10 @@ export class Game extends Scene
         let x = 512;
         if (type === 'left') {
             angle = 180;
-            x = 500
+            x = 270
         } else if (type === 'right') {
             angle = 0;
-            x = 950;
+            x = 750;
         } else if (type === 'up') {
             angle = 270;
             x = 650;
@@ -227,17 +227,17 @@ export class Game extends Scene
         }
         
         // end game
-        if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
-            this.changeScene();
-            this.music.stop();
-            this.songPlaying = false;
-        }
+        // if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
+        //     this.changeScene();
+        //     this.music.stop();
+        //     this.songPlaying = false;
+        // }
     }
     
     setInputs() {
         const leftKey = this.input.keyboard?.addKey("A");
         leftKey?.on('down', () => {
-            this.musicData.push({type: 'left', time: this.songDuration - 1200});
+            this.musicData.push({type: 'left', time: this.songDuration - 2300});
             console.log('this.musicData', this.musicData);
             this.leftPressed = true;
             this.arrowLeft.setTexture('arrow');
@@ -249,7 +249,7 @@ export class Game extends Scene
 
         const rightKey = this.input.keyboard?.addKey("D");
         rightKey?.on('down', () => {
-            this.musicData.push({type: 'right', time: this.songDuration - 1200});
+            this.musicData.push({type: 'right', time: this.songDuration - 2300});
             console.log('this.musicData', this.musicData);
             this.rightPressed = true;
             this.arrowRight.setTexture('arrow');
@@ -259,29 +259,29 @@ export class Game extends Scene
             this.arrowRight.setTexture('arrowEmpty');
         })
 
-        const upKey = this.input.keyboard?.addKey("W");
-        upKey?.on('down', () => {
-            this.musicData.push({type: 'up', time: this.songDuration - 1200});
-            console.log('this.musicData', this.musicData);
-            this.upPressed = true;
-            this.arrowUp.setTexture('arrow');
-        })
-        upKey?.on('up', () => {
-            this.upPressed = false;
-            this.arrowUp.setTexture('arrowEmpty');
-        })
-
-        const downKey = this.input.keyboard?.addKey("S");
-        downKey?.on('down', () => {
-            this.musicData.push({type: 'down', time: this.songDuration - 1200});
-            console.log('this.musicData', this.musicData);
-            this.downPressed = true;
-            this.arrowDown.setTexture('arrow');
-        })
-        downKey?.on('up', () => {
-            this.downPressed = false;
-            this.arrowDown.setTexture('arrowEmpty');
-        })
+        // const upKey = this.input.keyboard?.addKey("W");
+        // upKey?.on('down', () => {
+        //     this.musicData.push({type: 'up', time: this.songDuration - 1200});
+        //     console.log('this.musicData', this.musicData);
+        //     this.upPressed = true;
+        //     this.arrowUp.setTexture('arrow');
+        // })
+        // upKey?.on('up', () => {
+        //     this.upPressed = false;
+        //     this.arrowUp.setTexture('arrowEmpty');
+        // })
+        //
+        // const downKey = this.input.keyboard?.addKey("S");
+        // downKey?.on('down', () => {
+        //     this.musicData.push({type: 'down', time: this.songDuration - 1200});
+        //     console.log('this.musicData', this.musicData);
+        //     this.downPressed = true;
+        //     this.arrowDown.setTexture('arrow');
+        // })
+        // downKey?.on('up', () => {
+        //     this.downPressed = false;
+        //     this.arrowDown.setTexture('arrowEmpty');
+        // })
 
         const leftKeySecond = this.input.keyboard?.addKey("J");
         leftKeySecond?.on('down', () => {
@@ -303,25 +303,25 @@ export class Game extends Scene
             this.arrowRight.setTexture('arrowEmpty');
         })
 
-        const upKeySecond = this.input.keyboard?.addKey("I");
-        upKeySecond?.on('down', () => {
-            this.upPressed = true;
-            this.arrowUp.setTexture('arrow');
-        })
-        upKeySecond?.on('up', () => {
-            this.upPressed = false;
-            this.arrowUp.setTexture('arrowEmpty');
-        })
-
-        const downKeySecond = this.input.keyboard?.addKey("K");
-        downKeySecond?.on('down', () => {
-            this.downPressed = true;
-            this.arrowDown.setTexture('arrow');
-        })
-        downKeySecond?.on('up', () => {
-            this.downPressed = false;
-            this.arrowDown.setTexture('arrowEmpty');
-        })
+        // const upKeySecond = this.input.keyboard?.addKey("I");
+        // upKeySecond?.on('down', () => {
+        //     this.upPressed = true;
+        //     this.arrowUp.setTexture('arrow');
+        // })
+        // upKeySecond?.on('up', () => {
+        //     this.upPressed = false;
+        //     this.arrowUp.setTexture('arrowEmpty');
+        // })
+        //
+        // const downKeySecond = this.input.keyboard?.addKey("K");
+        // downKeySecond?.on('down', () => {
+        //     this.downPressed = true;
+        //     this.arrowDown.setTexture('arrow');
+        // })
+        // downKeySecond?.on('up', () => {
+        //     this.downPressed = false;
+        //     this.arrowDown.setTexture('arrowEmpty');
+        // })
         
         const shieldKey = this.input.keyboard?.addKey("Q");
         shieldKey?.on('down', () => {

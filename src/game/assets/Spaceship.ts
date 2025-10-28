@@ -236,7 +236,7 @@ export class Spaceship {
     spawnPlasma(afterCB?: () => void) {
         const x = this.x - 5;
         const y = this.y - 50;
-        const plasma = this.scene.add.ellipse(x, y, 10, 10, 0x0000ff).setOrigin(0,0);
+        const plasma = this.scene.add.ellipse(x, y, 20, 20, 0x0000ff).setOrigin(0,0);
         this.plasmas.push(plasma);
         this.modifyEnergy(-50)
         this.plasmaCooldown = 7500;
