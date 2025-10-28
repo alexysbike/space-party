@@ -1,6 +1,9 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import songData from '../songs/song1/data.json';
+import {Spaceship} from "../assets/Spaceship.ts";
+import {PlayerSpaceship} from "../assets/PlayerSpaceship.ts";
+import {EnemySpaceship} from "../assets/EnemySpaceship.ts";
 
 export class Game extends Scene
 {
@@ -27,29 +30,10 @@ export class Game extends Scene
     musicData: Array<{type: string, time: number}> = [];
     
     // spaceship stuff
-    energy = 100; // TODO: change this to 0
-    maxEnergy = 100;
-    energyBar: Phaser.GameObjects.Rectangle;
-    life = 100;
-    maxLife = 100;
-    lifeBar: Phaser.GameObjects.Rectangle;
-    spaceship: Phaser.GameObjects.Image;
-    shield: Phaser.GameObjects.Rectangle;
-    shieldActivated = false;
-    missileCooldown = 0;
-    rayCooldown = 0;
-    plasmaCooldown = 0;
+    spaceship: Spaceship;
     
     // enemy stuff
-    enemyEnergy = 0;
-    enemyMaxEnergy = 100;
-    enemyLife = 100;
-    enemySpaceship: Phaser.GameObjects.Image;
-    enemyMissileCooldown = 0;
-    enemyRayCooldown = 0;
-    enemyPlasmaCooldown = 0;
-    enemyShield: Phaser.GameObjects.Rectangle;
-    enemyShieldActivated = false;
+    enemySpaceship: Spaceship;
     
     // weapons stuff
     missiles: Phaser.GameObjects.Image[] = [];
@@ -78,23 +62,13 @@ export class Game extends Scene
         this.arrowDown = this.add.image(800, 700, 'arrowEmpty').setScale(0.3).setAngle(90);
         this.arrowRight = this.add.image(950, 700, 'arrowEmpty').setScale(0.3);
         
-        // add energy sprite
-        this.add.rectangle(50, 650, 300, 30, 0xffffff).setOrigin(0,0);
-        this.energyBar = this.add.rectangle(50, 650, 0, 30, 0x0000ff).setOrigin(0,0);
-        
-        // add life sprite
-        this.add.rectangle(50, 700, 300, 30, 0xffffff).setOrigin(0,0);
-        this.lifeBar = this.add.rectangle(50, 700, 0, 30, 0xff0000).setOrigin(0,0);
-        
-        // add spaceship sprite
-        this.spaceship = this.add.image(200, 550, 'spaceship1').setScale(0.3);
-        
-        // add shields sprite
-        this.shield = this.add.rectangle(200, 450, 200, 30, 0x0000ff).setAlpha(0);
-        this.enemyShield = this.add.rectangle(200, 200, 200, 30, 0x0000ff).setAlpha(0);
+        // add spaceship
+        this.spaceship = new PlayerSpaceship(this); 
+        this.spaceship.create();
         
         // add enemy spaceship sprite
-        this.enemySpaceship = this.add.image(200, 100, 'spaceship2').setScale(0.1);
+        this.enemySpaceship = new EnemySpaceship(this);
+        this.enemySpaceship.create()
         
         // input
         this.setInputs()
@@ -125,45 +99,12 @@ export class Game extends Scene
         this.arrows.push(arrow);
     }
     
-    spawnMissile() {
-        const x = 200;
-        const y = 550;
-        const missile = this.add.image(x, y, 'missile').setScale(0.1).setAngle(270);
-        this.missiles.push(missile);
-        this.energy -= 25;
-        
-        // simulate enemy shield
-        this.spawnEnemyShield()
-    }
-    
-    spawnRay() {
-        const x = 195;
-        const y = 500;
-        const ray = this.add.rectangle(x, y, 10, -500, 0x0000ff).setOrigin(0,0);
-        this.rays.push(ray);
-        this.energy -= 35;
-        
-        // simulate enemy shield
-        this.spawnEnemyShield()
-    }
-    
-    spawnPlasma() {
-        const x = 195;
-        const y = 500;
-        const plasma = this.add.ellipse(x, y, 10, 10, 0x0000ff).setOrigin(0,0);
-        this.plasmas.push(plasma);
-        this.energy -= 50;
-        
-        // simulate enemy shield
-        this.spawnEnemyShield()
-    }
-    
     spawnMissileEnemy() {
         const x = 200;
         const y = 100
         const missile = this.add.image(x, y, 'missile').setScale(0.1).setAngle(90);
         this.missilesEnemy.push(missile);
-        this.enemyEnergy -= 35;
+        this.enemySpaceship.modifyEnergy(-35);
     }
 
     spawnRayEnemy() {
@@ -171,7 +112,7 @@ export class Game extends Scene
         const y = 100;
         const ray = this.add.rectangle(x, y, 10, 500, 0x0000ff).setOrigin(0,0);
         this.raysEnemy.push(ray);
-        this.enemyEnergy -= 45;
+        this.enemySpaceship.modifyEnergy(-45);
     }
 
     spawnPlasmaEnemy() {
@@ -179,12 +120,12 @@ export class Game extends Scene
         const y = 100;
         const plasma = this.add.ellipse(x, y, 10, 10, 0x0000ff).setOrigin(0,0);
         this.plasmasEnemy.push(plasma);
-        this.enemyEnergy -= 60;
+        this.enemySpaceship.modifyEnergy(-60);
     }
     
     spawnEnemyShield() {
         if (Math.random() < 0.5) {
-            this.enemyShieldActivated = true
+            this.enemySpaceship.spawnShield()
         }
     }
     
@@ -198,6 +139,9 @@ export class Game extends Scene
     
     update(time: number, delta: number) {
         super.update(time, delta);
+        
+        this.spaceship.update(time, delta);
+        this.enemySpaceship.update(time, delta);
         
         // movimiento de las flechas
         for (let i = 0; i < this.arrows.length; i++) {
@@ -224,51 +168,33 @@ export class Game extends Scene
                         arrow.destroy();
                         this.arrows.splice(i, 1);
                         i--;
-                        this.energy += 10;
-                        if (this.energy > this.maxEnergy) {
-                            this.energy = this.maxEnergy;
-                        }
+                        this.spaceship.modifyEnergy(10);
                     }
                 } else if (arrow.getData('type') === 'right') {
                     if (this.rightPressed) {
                         arrow.destroy();
                         this.arrows.splice(i, 1);
                         i--;
-                        this.energy += 10;
-                        if (this.energy > this.maxEnergy) {
-                            this.energy = this.maxEnergy;
-                        }
+                        this.spaceship.modifyEnergy(10);
                     }
                 } else if (arrow.getData('type') === 'up') {
                     if (this.upPressed) {
                         arrow.destroy();
                         this.arrows.splice(i, 1);
                         i--;
-                        this.energy += 10;
-                        if (this.energy > this.maxEnergy) {
-                            this.energy = this.maxEnergy;
-                        }
+                        this.spaceship.modifyEnergy(10);
                     }
                 } else if (arrow.getData('type') === 'down') {
                     if (this.downPressed) {
                         arrow.destroy();
                         this.arrows.splice(i, 1);
                         i--;
-                        this.energy += 10;
-                        if (this.energy > this.maxEnergy) {
-                            this.energy = this.maxEnergy;
-                        }
+                        this.spaceship.modifyEnergy(10);
                     }
                 }
                 
             }
         }
-
-        // updating energy bar
-        this.energyBar.width = this.energy / this.maxEnergy * 300;
-        
-        //updating life bar
-        this.lifeBar.width = this.life / this.maxLife * 300;
         
         // song playing
         if (this.songPlaying) {
@@ -282,233 +208,58 @@ export class Game extends Scene
             }
         }
         
-        // shield
-        if (this.shieldActivated) {
-            this.shield.setAlpha(0.5);
-        } else {
-            this.shield.setAlpha(0);
+        // missile logic
+        this.spaceship.isMissileImpact = (missile: Phaser.GameObjects.Image) => missile.y < (this.enemySpaceship.shieldActivated ? 230 : 150)
+        this.spaceship.onMissileImpact = () => {
+            this.enemySpaceship.modifyLife(-10, () => this.enemySpaceship.disableShield());
         }
-        if (this.shieldActivated && this.energy > 0) {
-            this.energy -= delta / 1000;
-            if (this.energy < 0) {
-                this.energy = 0;
+        
+        // ray logic
+        this.spaceship.isRayImpact = () => {
+            if (this.enemySpaceship.shieldActivated) {
+                return -290
             }
+            return -500;
+        }
+        this.spaceship.onRayImpact = () => {
+            this.enemySpaceship.modifyLife(-20, () => this.enemySpaceship.disableShield())
         }
         
-        // missile movement
-        for (let i = 0; i < this.missiles.length; i++) {
-            const missile = this.missiles[i];
-            missile.y -= 10;
-            if (missile.y < (this.enemyShieldActivated ? 230 : 150)) {
-                missile.destroy();
-                this.missiles.splice(i, 1);
-                i--;
-                if (this.enemyShieldActivated) {
-                    this.enemyEnergy -= 10;
-                    if (this.enemyEnergy < 0) {
-                        this.enemyEnergy = 0;
-                        this.enemyLife -= 10;
-                    }
-                    this.enemyShieldActivated = false;
-                } else {
-                    // drop enemy enemyLife
-                    this.enemyLife -= 10
-                }
-            }
+        // plasma logic
+        this.spaceship.isPlasmaImpact = (plasma) => {
+            return plasma.y < (this.enemySpaceship.shieldActivated ? 230 : 150)
         }
-        
-        // missile cooldown
-        if (this.missileCooldown > 0) {
-            this.missileCooldown -= delta;
-        }
-        
-        // ray dismissal
-        for (let i = 0; i < this.rays.length; i++) {
-            const ray = this.rays[i];
-            ray.setAlpha(ray.alpha - delta / 1000);
-            // ray length by shield
-            if (this.enemyShieldActivated) {
-                ray.height = -290;
-            } else {
-                ray.height = -500;
-            }
-            if (ray.alpha <= 0) {
-                ray.destroy();
-                this.rays.splice(i, 1);
-                i--;
-                if (this.enemyShieldActivated) {
-                    this.enemyEnergy -= 20;
-                    if (this.enemyEnergy < 0) {
-                        this.enemyEnergy = 0;
-                        this.enemyLife -= 20;
-                    }
-                    this.enemyShieldActivated = false;
-                } else {
-                    // drop enemy enemyLife
-                    this.enemyLife -= 20
-                }
-            }       
-        }
-        
-        // ray cooldown
-        if (this.rayCooldown > 0) {
-            this.rayCooldown -= delta;
-        }
-        
-        // plasma movement
-        for (let i = 0; i < this.plasmas.length; i++) {
-            const plasma = this.plasmas[i];
-            plasma.y -= 5;
-            if (plasma.y < (this.enemyShieldActivated ? 230 : 150)) {
-                plasma.destroy()
-                this.plasmas.splice(i, 1);
-                i--;
-                if (this.enemyShieldActivated) {
-                    this.enemyEnergy -= 30;
-                    if (this.enemyEnergy < 0) {
-                        this.enemyEnergy = 0;
-                        this.enemyLife -= 30;
-                    }
-                    this.enemyShieldActivated = false;
-                } else {
-                    // drop enemy enemyLife
-                    this.enemyLife -= 30
-                }
-            }
-        }
-        
-        // plasma cooldown
-        if (this.plasmaCooldown > 0) {
-            this.plasmaCooldown -= delta;
-        }
-        
-        // enemy ia
-        // enemy energy increase
-        this.enemyEnergy += 2 * delta / 1000;
-        // random number to a hit increase
-        if (Math.random() < 0.007) {
-            this.enemyEnergy += 10
-        }
-        if (this.enemyEnergy > this.enemyMaxEnergy) {
-            this.enemyEnergy = this.enemyMaxEnergy;
+        this.spaceship.onPlasmaImpact = () => {
+            this.enemySpaceship.modifyLife(-30, () => this.enemySpaceship.disableShield());
         }
 
-        if (this.enemyEnergy > 60 && this.enemyPlasmaCooldown <= 0) {
-            this.spawnPlasmaEnemy()
-            this.enemyPlasmaCooldown = 15000;
-        }
-        
-        if (this.enemyEnergy > 45 && this.enemyRayCooldown <= 0) {
-            this.spawnRayEnemy()
-            this.enemyRayCooldown = 10000;
-        }
-        
-        if (this.enemyEnergy > 35 && this.enemyMissileCooldown <= 0) {
-            this.spawnMissileEnemy()
-            this.enemyMissileCooldown = 5000;
+        // enemy missile logic
+        this.enemySpaceship.isMissileImpact = (missile: Phaser.GameObjects.Image) => missile.y > (this.spaceship.shieldActivated ? 400 : 470)
+        this.enemySpaceship.onMissileImpact = () => {
+            this.spaceship.modifyLife(-10);
         }
 
-        // enemy shield
-        if (this.enemyShieldActivated) {
-            this.enemyShield.setAlpha(0.5);
-        } else {
-            this.enemyShield.setAlpha(0);
-        }
-        if (this.enemyShieldActivated && this.energy > 0) {
-            this.enemyEnergy -= 2 * delta / 1000;
-            if (this.enemyEnergy < 0) {
-                this.enemyEnergy = 0;
+        // enemy ray logic
+        this.enemySpaceship.isRayImpact = () => {
+            if (this.spaceship.shieldActivated) {
+                return 350;
             }
+            return 500;
+        }
+        this.enemySpaceship.onRayImpact = () => {
+            this.spaceship.modifyLife(-20)
         }
 
-        // enemy missile movement
-        for (let i = 0; i < this.missilesEnemy.length; i++) {
-            const missile = this.missilesEnemy[i];
-            missile.y += 10;
-            if (missile.y > (this.shieldActivated ? 400 : 470)) {
-                missile.destroy();
-                this.missilesEnemy.splice(i, 1);
-                i--;
-                if (this.shieldActivated) {
-                    this.energy -= 0.6 * 10;
-                    if (this.energy < 0) {
-                        this.energy = 0;
-                        this.life -= 0.6 * 10;
-                    }
-                } else {
-                    // drop enemy life
-                    this.life -= 10
-                }
-            }
+        // enemy plasma logic
+        this.enemySpaceship.isPlasmaImpact = (plasma) => {
+            return plasma.y < (this.spaceship.shieldActivated ? 400 : 470)
         }
-
-        // enemy missile cooldown
-        if (this.enemyMissileCooldown > 0) {
-            this.enemyMissileCooldown -= delta;
-        }
-
-        // enemy ray dismissal
-        for (let i = 0; i < this.raysEnemy.length; i++) {
-            const ray = this.raysEnemy[i];
-            ray.setAlpha(ray.alpha - delta / 1000);
-            // ray length by shield
-            if (this.shieldActivated) {
-                ray.height = 350;
-            } else {
-                ray.height = 500;           
-            }
-            if (ray.alpha <= 0) {
-                ray.destroy();
-                this.raysEnemy.splice(i, 1);
-                i--;
-                if (this.shieldActivated) {
-                    this.energy -= 0.6 * 20;
-                    if (this.energy < 0) {
-                        this.energy = 0;
-                        this.life -= 0.6 * 20;
-                    }
-                } else {
-                    // drop enemy life
-                    this.life -= 20
-                }
-            }
-        }
-        
-        
-
-        // ray cooldown
-        if (this.enemyRayCooldown > 0) {
-            this.enemyRayCooldown -= delta;
-        }
-
-        // enemy plasma movement
-        for (let i = 0; i < this.plasmasEnemy.length; i++) {
-            const plasma = this.plasmasEnemy[i];
-            plasma.y += 5;
-            if (plasma.y < (this.shieldActivated ? 400 : 470)) {
-                plasma.destroy()
-                this.plasmasEnemy.splice(i, 1);
-                i--;
-                if (this.shieldActivated) {
-                    this.energy -= 0.6 * 30;
-                    if (this.energy < 0) {
-                        this.energy = 0;
-                        this.life -= 0.6 * 30;
-                    }
-                } else {
-                    // drop enemy life
-                    this.life -= 30
-                }
-            }
-        }
-
-        // enemy plasma cooldown
-        if (this.enemyPlasmaCooldown > 0) {
-            this.enemyPlasmaCooldown -= delta;
+        this.enemySpaceship.onPlasmaImpact = () => {
+            this.spaceship.modifyLife(-30)
         }
         
         // end game
-        if (this.life <= 0 || this.enemyLife <= 0) {
+        if (this.spaceship.life <= 0 || this.enemySpaceship.life <= 0) {
             this.changeScene();
             this.music.stop();
             this.songPlaying = false;
@@ -606,35 +357,32 @@ export class Game extends Scene
         
         const shieldKey = this.input.keyboard?.addKey("Q");
         shieldKey?.on('down', () => {
-            if (this.energy > 0) {
-                this.shieldActivated = true;
+            if (this.spaceship.energy > 0) {
+                this.spaceship.spawnShield();
             }
         })
         shieldKey?.on('up', () => {
-            this.shieldActivated = false;
+            this.spaceship.disableShield();
         })
         
         const missileKey = this.input.keyboard?.addKey("E");
         missileKey?.on('down', () => {
-            if (this.energy > 30 && this.missileCooldown <= 0) {
-                this.spawnMissile();
-                this.missileCooldown = 2000;
+            if (this.spaceship.energy > 30 && this.spaceship.missileCooldown <= 0) {
+                this.spaceship.spawnMissile(() => this.spawnEnemyShield());
             }
         })
         
         const rayKey = this.input.keyboard?.addKey("U");
         rayKey?.on('down', () => {
-            if (this.energy > 35 && this.rayCooldown <= 0) {
-                this.spawnRay();
-                this.rayCooldown = 5000;
+            if (this.spaceship.energy > 35 && this.spaceship.rayCooldown <= 0) {
+                this.spaceship.spawnRay(() => this.spawnEnemyShield());
             }
         })
         
         const plasmaKey = this.input.keyboard?.addKey("O");
         plasmaKey?.on('down', () => {
-            if (this.energy > 50 && this.plasmaCooldown <= 0) {
-                this.spawnPlasma();
-                this.plasmaCooldown = 7500;
+            if (this.spaceship.energy > 50 && this.spaceship.plasmaCooldown <= 0) {
+                this.spaceship.spawnPlasma(() => this.spawnEnemyShield());
             }
         })
     }
