@@ -21,6 +21,7 @@ export class Spaceship {
     missileCooldown = 0;
     rayCooldown = 0;
     plasmaCooldown = 0;
+    allWeaponsCooldown = 0;
     
     // Weapon stuff
     missileAngle = 270;
@@ -105,6 +106,11 @@ export class Spaceship {
         // plasma cooldown
         if (this.plasmaCooldown > 0) {
             this.plasmaCooldown -= delta;
+        }
+        
+        // All Weapons cooldown
+        if (this.allWeaponsCooldown > 0) {
+            this.allWeaponsCooldown -= delta;
         }
 
         // missile movement
@@ -210,6 +216,7 @@ export class Spaceship {
         this.missiles.push(missile);
         this.modifyEnergy(-25)
         this.missileCooldown = 2000;
+        this.allWeaponsCooldown = 1000
         
         if (afterCB) { afterCB();}
     }
@@ -221,6 +228,8 @@ export class Spaceship {
         this.rays.push(ray);
         this.modifyEnergy(-35)
         this.rayCooldown = 5000;
+        this.allWeaponsCooldown = 1000
+        
         if (afterCB) { afterCB();}
     }
 
@@ -231,6 +240,8 @@ export class Spaceship {
         this.plasmas.push(plasma);
         this.modifyEnergy(-50)
         this.plasmaCooldown = 7500;
+        this.allWeaponsCooldown = 1000
+        
         if (afterCB) { afterCB();}
     }
 }

@@ -35,14 +35,6 @@ export class Game extends Scene
     // enemy stuff
     enemySpaceship: Spaceship;
     
-    // weapons stuff
-    missiles: Phaser.GameObjects.Image[] = [];
-    rays: Phaser.GameObjects.Rectangle[] = [];
-    plasmas: Phaser.GameObjects.Ellipse[] = [];
-    missilesEnemy: Phaser.GameObjects.Image[] = [];
-    raysEnemy: Phaser.GameObjects.Rectangle[] = [];
-    plasmasEnemy: Phaser.GameObjects.Ellipse[] = [];
-
     constructor ()
     {
         super('Game');
@@ -97,30 +89,6 @@ export class Game extends Scene
         const arrow = this.add.image(x, 0, 'arrow', 64).setScale(0.3).setAngle(angle);
         arrow.setData('type', type);
         this.arrows.push(arrow);
-    }
-    
-    spawnMissileEnemy() {
-        const x = 200;
-        const y = 100
-        const missile = this.add.image(x, y, 'missile').setScale(0.1).setAngle(90);
-        this.missilesEnemy.push(missile);
-        this.enemySpaceship.modifyEnergy(-35);
-    }
-
-    spawnRayEnemy() {
-        const x = 195;
-        const y = 100;
-        const ray = this.add.rectangle(x, y, 10, 500, 0x0000ff).setOrigin(0,0);
-        this.raysEnemy.push(ray);
-        this.enemySpaceship.modifyEnergy(-45);
-    }
-
-    spawnPlasmaEnemy() {
-        const x = 195;
-        const y = 100;
-        const plasma = this.add.ellipse(x, y, 10, 10, 0x0000ff).setOrigin(0,0);
-        this.plasmasEnemy.push(plasma);
-        this.enemySpaceship.modifyEnergy(-60);
     }
     
     spawnEnemyShield() {
@@ -247,7 +215,7 @@ export class Game extends Scene
             return 500;
         }
         this.enemySpaceship.onRayImpact = () => {
-            this.spaceship.modifyLife(-20)
+            this.spaceship.modifyLife(-15)
         }
 
         // enemy plasma logic
@@ -365,24 +333,39 @@ export class Game extends Scene
             this.spaceship.disableShield();
         })
         
-        const missileKey = this.input.keyboard?.addKey("E");
-        missileKey?.on('down', () => {
-            if (this.spaceship.energy > 30 && this.spaceship.missileCooldown <= 0) {
+        const weaponKey = this.input.keyboard?.addKey("E");
+        weaponKey?.on('down', () => {
+            if (this.spaceship.energy > 50 && this.spaceship.plasmaCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
+                this.spaceship.spawnPlasma(() => this.spawnEnemyShield());
+            }
+            if (this.spaceship.energy > 40 && this.spaceship.missileCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
+                this.spaceship.spawnRay(() => this.spawnEnemyShield());
+            }
+            if (this.spaceship.energy > 30 && this.spaceship.missileCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
                 this.spaceship.spawnMissile(() => this.spawnEnemyShield());
             }
         })
         
-        const rayKey = this.input.keyboard?.addKey("U");
-        rayKey?.on('down', () => {
-            if (this.spaceship.energy > 35 && this.spaceship.rayCooldown <= 0) {
-                this.spaceship.spawnRay(() => this.spawnEnemyShield());
+        const shield2Key = this.input.keyboard?.addKey("U");
+        shield2Key?.on('down', () => {
+            if (this.spaceship.energy > 0) {
+                this.spaceship.spawnShield();
             }
         })
+        shield2Key?.on('up', () => {
+            this.spaceship.disableShield();
+        })
         
-        const plasmaKey = this.input.keyboard?.addKey("O");
-        plasmaKey?.on('down', () => {
-            if (this.spaceship.energy > 50 && this.spaceship.plasmaCooldown <= 0) {
+        const weapon2Key = this.input.keyboard?.addKey("O");
+        weapon2Key?.on('down', () => {
+            if (this.spaceship.energy > 50 && this.spaceship.plasmaCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
                 this.spaceship.spawnPlasma(() => this.spawnEnemyShield());
+            }
+            if (this.spaceship.energy > 40 && this.spaceship.missileCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
+                this.spaceship.spawnRay(() => this.spawnEnemyShield());
+            }
+            if (this.spaceship.energy > 30 && this.spaceship.missileCooldown <= 0 && this.spaceship.allWeaponsCooldown <= 0) {
+                this.spaceship.spawnMissile(() => this.spawnEnemyShield());
             }
         })
     }
